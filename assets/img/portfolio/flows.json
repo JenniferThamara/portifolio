@@ -1,0 +1,213 @@
+[
+    {
+        "id": "6561c5c8e4a62669",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "732d91bc089f953b",
+        "type": "inject",
+        "z": "6561c5c8e4a62669",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 120,
+        "wires": [
+            [
+                "29f0a6214680becf"
+            ]
+        ]
+    },
+    {
+        "id": "aabc87af6549229c",
+        "type": "http request",
+        "z": "6561c5c8e4a62669",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://www.worldcoinindex.com/coin/bitcoin",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 120,
+        "wires": [
+            [
+                "0d43aa9f03cbc086",
+                "533a27ca746f3285"
+            ]
+        ]
+    },
+    {
+        "id": "0d43aa9f03cbc086",
+        "type": "html",
+        "z": "6561c5c8e4a62669",
+        "name": "",
+        "property": "payload",
+        "outproperty": "payload",
+        "tag": "table.coin-markets-table>tbody>tr>td",
+        "ret": "text",
+        "as": "single",
+        "x": 770,
+        "y": 40,
+        "wires": [
+            [
+                "bdde8e06109de23c"
+            ]
+        ]
+    },
+    {
+        "id": "533a27ca746f3285",
+        "type": "html",
+        "z": "6561c5c8e4a62669",
+        "name": "",
+        "property": "payload",
+        "outproperty": "payload",
+        "tag": "div.right-side>div>div>span",
+        "ret": "text",
+        "as": "single",
+        "x": 780,
+        "y": 200,
+        "wires": [
+            [
+                "c84c8588a6257b39"
+            ]
+        ]
+    },
+    {
+        "id": "29f0a6214680becf",
+        "type": "function",
+        "z": "6561c5c8e4a62669",
+        "name": "function 1",
+        "func": "flow.set('status1',0);\nflow.set('status2', 0);\nflow.set('output1', null);\nflow.set('output2', null);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 120,
+        "wires": [
+            [
+                "aabc87af6549229c"
+            ]
+        ]
+    },
+    {
+        "id": "bdde8e06109de23c",
+        "type": "function",
+        "z": "6561c5c8e4a62669",
+        "name": "function 2",
+        "func": "var result = msg.payload;\n//update status1=1\nflow.set('status1',1);\n//update output1 with result\nflow.set('output1',result);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1000,
+        "y": 40,
+        "wires": [
+            [
+                "c1e89c53d57f8633"
+            ]
+        ]
+    },
+    {
+        "id": "c84c8588a6257b39",
+        "type": "function",
+        "z": "6561c5c8e4a62669",
+        "name": "function 3",
+        "func": "var result = msg.payload;\n//update status1=1\nflow.set('status2',1);\n//update output1 with result\nflow.set('output2',result);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 200,
+        "wires": [
+            [
+                "c1e89c53d57f8633"
+            ]
+        ]
+    },
+    {
+        "id": "c1e89c53d57f8633",
+        "type": "function",
+        "z": "6561c5c8e4a62669",
+        "name": "merge",
+        "func": "var status1=flow.get('status1');\nvar status2 = flow.get('status2');\nvar data1 = flow.get('output1');\nvar data2 = flow.get('output2');\nif(status1==1 && status2==1){\n    var report = {\n        high: data2[0].trim(),\n        coins:[]\n\n    };\n    for(var i=0;i<15;i=i+5){\n        var coin ={\n            name: data1[i+0].trim(),\n            price: data1[i+2].trim(),\n            vol: data1[i+4].trim()\n        };\n        report.coins.push(coin);\n    }\n    \n    msg.payload = report;\n    return msg;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1150,
+        "y": 120,
+        "wires": [
+            [
+                "e4a60bed948d722b"
+            ]
+        ]
+    },
+    {
+        "id": "e4a60bed948d722b",
+        "type": "json",
+        "z": "6561c5c8e4a62669",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 1170,
+        "y": 260,
+        "wires": [
+            [
+                "7fdb40f9f3f9750f"
+            ]
+        ]
+    },
+    {
+        "id": "7fdb40f9f3f9750f",
+        "type": "file",
+        "z": "6561c5c8e4a62669",
+        "name": "",
+        "filename": "C:\\Users\\Fatec 3D\\Documents\\matheus\\bitcoin.json",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 1270,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    }
+]
